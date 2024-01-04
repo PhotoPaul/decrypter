@@ -1,8 +1,6 @@
 async function encrypt() {
   // let keyPair = generateKeyPair();
   let publicKeys = await fetchPublicKeys();
-  // console.log(publicKeys.proxyPublicKey);
-  // console.log(publicKeys.resolverPublicKey);
   publicKeys.proxyPublicKeyImported = await pemPublicKeyToWebKey(publicKeys.proxyPublicKey);
   publicKeys.resolverPublicKeyImported = await pemPublicKeyToWebKey(publicKeys.resolverPublicKey);
   debugger;
@@ -10,24 +8,16 @@ async function encrypt() {
 }
 
 async function encryptMessage(publicKey, message) {
-  // Convert the message to an ArrayBuffer
   const encoder = new TextEncoder();
-  const data = encoder.encode(message);
-  
-  // Generate a random initialization vector
-  const iv = window.crypto.getRandomValues(new Uint8Array(12));
-  
-  // Encrypt the data
+  const dataBuffer = encoder.encode(message);
   const encryptedData = await window.crypto.subtle.encrypt(
-      {
-          name: "AES-GCM",
-          iv: iv
-      },
-      publicKey,
-      data
+    {
+      name: "RSA-OAEP",
+    },
+    publicKey,
+    dataBuffer
   );
-  
-  return { iv, encryptedData };
+  return encryptedData;
 }
 
 function pemPublicKeyToWebKey(pemPublicKey) {
@@ -46,11 +36,11 @@ function pemPublicKeyToWebKey(pemPublicKey) {
       "spki",
       binaryDer,
       {
-          name: "RSASSA-PKCS1-v1_5",
+          name: "RSA-OAEP",
           hash: "SHA-256",
       },
       true,
-      ["verify"]
+      ["encrypt"]
   );
 }
 
@@ -72,11 +62,11 @@ async function fetchPublicKeys() {
 
 async function generateKeyPair() {
   let keyPair = await window.crypto.subtle.generateKey({
-    name: "RSASSA-PKCS1-v1_5",
+    name: "RSA-OAEP",
     modulusLength: 2048,
     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
     hash: { name: "SHA-256" },
-  }, true, ["sign", "verify"]);
+  }, true, ["encrypt", "decrypt"]);
 
   console.log(await webCryptoPublicKeyToPEM(keyPair.publicKey));
   console.log(await webCryptoPrivateKeyToPEM(keyPair.privateKey));
