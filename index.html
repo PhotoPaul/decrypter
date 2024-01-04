@@ -6,11 +6,32 @@
 </head>
 
 <body>
-  <input id="url" type="text" value="https://www.google.com" />
-  <button onclick="encrypt()">Fetch JSON</button>
+  <table>
+    <tr>
+      <td style="text-align: right">Proxy URL:</td>
+      <td><input id="proxyUrl"
+          value="https://script.google.com/macros/s/AKfycbx5-apWsu9ZWPtneyW7oNzLMsutDzG7_JtHCew2wEcacYvWjwCjp3okOFwp2YdqTU0T/exec" />
+      </td>
+    </tr>
+    <tr>
+      <td style="text-align: right">Resolver URL:</td>
+      <td><input id="resolverUrl"
+          value="https://script.google.com/macros/s/AKfycbx5-apWsu9ZWPtneyW7oNzLMsutDzG7_JtHCew2wEcacYvWjwCjp3okOFwp2YdqTU0T/exec" />
+      </td>
+    </tr>
+  </table><br><br>
+  <table>
+    <tr>
+      <td>URL to encrypt:</td>
+      <td><input id="url" type="text" value="https://www.google.com" /></td>
+    </tr>
+  </table><br><br>
 
+  <button onclick="encrypt(document.getElementById('url').value)">Fetch Public Keys and Encrypt</button><br><br><br>
+  <textarea id="encrypted" cols="36"></textarea>
+
+  <script src="crypto-helper.js"></script>
   <script src="main.js"></script>
-
 </body>
 
 </html>
