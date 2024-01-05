@@ -11,7 +11,18 @@ async function encryptMessage(publicKey, message) {
   return encryptedData;
 }
 
-function pemPublicKeyToWebKey(pemPublicKey) {
+async function decryptMessage(privateKey, message) {
+  const decrypted = await window.crypto.subtle.decrypt(
+    {
+      name: 'RSA-OAEP',
+    },
+    privateKey,
+    base64ToArrayBuffer(message)
+  );
+  return new TextDecoder().decode(decrypted);
+}
+
+function pemToCryptoPublicKey(pemPublicKey) {
   // Fetch the part of the PEM string between header and footer
   const pemHeader = "-----BEGIN PUBLIC KEY-----";
   const pemFooter = "-----END PUBLIC KEY-----";
@@ -21,7 +32,7 @@ function pemPublicKeyToWebKey(pemPublicKey) {
   const binaryDerString = window.atob(pemContents);
 
   // Convert from a binary string to an ArrayBuffer
-  const binaryDer = stringToArrayBuffer(binaryDerString);
+  const binaryDer = base64ToArrayBuffer(binaryDerString);
 
   return window.crypto.subtle.importKey(
     "spki",
@@ -35,62 +46,54 @@ function pemPublicKeyToWebKey(pemPublicKey) {
   );
 }
 
-// Function to convert string to ArrayBuffer
-function stringToArrayBuffer(str) {
-  const buf = new ArrayBuffer(str.length);
-  const bufView = new Uint8Array(buf);
-  for (let i = 0, strLen = str.length; i < strLen; i++) {
-    bufView[i] = str.charCodeAt(i);
-  }
-  return buf;
+function pemToCryptoPrivateKey(pemPrivateKey) {
+  // Fetch the part of the PEM string between header and footer
+  const pemHeader = "-----BEGIN RSA PRIVATE KEY-----";
+  const pemFooter = "-----END RSA PRIVATE KEY-----";
+  const pemContents = pemPrivateKey.substring(pemHeader.length, pemPrivateKey.length - pemFooter.length);
+
+  // Base64 decode the string to get the binary data
+  const binaryDerString = window.atob(pemContents);
+
+  // Convert from a binary string to an ArrayBuffer
+  const binaryDer = base64ToArrayBuffer(binaryDerString);
+
+  return window.crypto.subtle.importKey(
+    "pkcs8",
+    binaryDer,
+    {
+      name: "RSA-OAEP",
+      hash: "SHA-256",
+    },
+    true,
+    ["decrypt"]
+  );
 }
 
-async function fetchPublicKeys() {
-  const response = await fetch('https://script.google.com/macros/s/AKfycbx5-apWsu9ZWPtneyW7oNzLMsutDzG7_JtHCew2wEcacYvWjwCjp3okOFwp2YdqTU0T/exec'); // Replace with your URL
-  const publicKeys = await response.json();
-  return publicKeys;
+async function fetchPublicKey(serverUrl) {
+  const response = await fetch(serverUrl);
+  const publicKey = await response.text();
+  return publicKey;
 }
 
-async function generateKeyPair() {
-  let keyPair = await window.crypto.subtle.generateKey({
-    name: "RSA-OAEP",
-    modulusLength: 2048,
-    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-    hash: { name: "SHA-256" },
-  }, true, ["encrypt", "decrypt"]);
-
-  console.log(await webCryptoPublicKeyToPEM(keyPair.publicKey));
-  console.log(await webCryptoPrivateKeyToPEM(keyPair.privateKey));
-  return keyPair;
-}
-
-async function webCryptoPublicKeyToPEM(publicKey) {
+async function cryptoPublicKeyToPEM(publicKey) {
   return window.crypto.subtle.exportKey("spki", publicKey)
     .then(keyData => {
-      const keyString = arrayBufferToString(keyData);
+      const keyString = arrayBufferToBase64(keyData);
       const base64Key = window.btoa(keyString);
       const pemKey = formatPublicKeyAsPem(base64Key);
       return pemKey;
     });
 }
 
-async function webCryptoPrivateKeyToPEM(privateKey) {
+async function cryptoPrivateKeyToPEM(privateKey) {
   return window.crypto.subtle.exportKey("pkcs8", privateKey)
     .then(keyData => {
-      const keyString = arrayBufferToString(keyData);
+      const keyString = arrayBufferToBase64(keyData);
       const base64Key = window.btoa(keyString);
       const pemKey = formatPrivateKeyAsPem(base64Key);
       return pemKey;
     });
-}
-
-function arrayBufferToString(buffer) {
-  let binary = '';
-  const bytes = new Uint8Array(buffer);
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return binary;
 }
 
 function formatPublicKeyAsPem(str) {
@@ -111,4 +114,38 @@ function formatPrivateKeyAsPem(str) {
   }
   finalString += "-----END RSA PRIVATE KEY-----";
   return finalString;
+}
+
+function arrayBufferToBase64(buffer) {
+  var binary = '';
+  var bytes = new Uint8Array(buffer);
+  var len = bytes.byteLength;
+  for (var i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
+}
+
+function base64ToArrayBuffer(base64) {
+  var binary_string = window.atob(base64);
+  var len = binary_string.length;
+  var bytes = new Uint8Array(len);
+  for (var i = 0; i < len; i++) {
+    bytes[i] = binary_string.charCodeAt(i);
+  }
+  return bytes.buffer;
+}
+
+async function generateKeyPair() {
+  let keyPair = await window.crypto.subtle.generateKey({
+    name: "RSA-OAEP",
+    modulusLength: 2048,
+    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+    hash: { name: "SHA-256" },
+  }, true, ["encrypt", "decrypt"]);
+
+  keyPair.pemPublicKey = await cryptoPublicKeyToPEM(keyPair.publicKey);
+  keyPair.pemPrivateKey = await cryptoPrivateKeyToPEM(keyPair.privateKey);
+
+  return keyPair;
 }
