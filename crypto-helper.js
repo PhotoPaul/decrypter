@@ -28,11 +28,8 @@ function pemToCryptoPublicKey(pemPublicKey) {
   const pemFooter = "-----END PUBLIC KEY-----";
   const pemContents = pemPublicKey.substring(pemHeader.length, pemPublicKey.length - pemFooter.length);
 
-  // Base64 decode the string to get the binary data
-  const binaryDerString = window.atob(pemContents);
-
-  // Convert from a binary string to an ArrayBuffer
-  const binaryDer = base64ToArrayBuffer(binaryDerString);
+  // Convert from a Base64 string to an ArrayBuffer
+  const binaryDer = base64ToArrayBuffer(pemContents);
 
   return window.crypto.subtle.importKey(
     "spki",

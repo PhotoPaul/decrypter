@@ -2,7 +2,10 @@
 <html>
 
 <head>
-  <title>Fetch JSON Example</title>
+  <title>Distributor</title>
+  <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="expires" content="0">
+  <meta http-equiv="pragma" content="no-cache">
 </head>
 
 <body>
@@ -12,12 +15,12 @@
       <td><input id="url" type="text" value="https://www.google.com" /></td>
     </tr>
   </table><br>
-  <button onclick="generateKeys()">Generate Keys</button> - <button onclick="encrypt(document.getElementById('url').value)">Encrypt</button><br><br>
+  <button onclick="generateKeys()">Generate Keys</button> - <button
+    onclick="encrypt(document.getElementById('url').value)">Encrypt</button><br><br>
   <table>
     <tr>
       <td style="text-align: right">Proxy URL:</td>
-      <td><input id="proxyUrl"
-          value="https://script.google.com/macros/s/AKfycbx5-apWsu9ZWPtneyW7oNzLMsutDzG7_JtHCew2wEcacYvWjwCjp3okOFwp2YdqTU0T/exec" />
+      <td><input id="proxyUrl" value="http://vmd.pavmeg.com:3000/publicKey" />
       </td>
     </tr>
     <tr>

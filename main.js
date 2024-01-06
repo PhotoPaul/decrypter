@@ -1,21 +1,21 @@
 var keys = {};
 
-async function fetchAndEncrypt(message) {debugger;
+async function fetchAndEncrypt(message) {
   keys = {
     proxy: { pemPublicKey: await fetchPublicKey(document.getElementById("proxyUrl").value) },
     resolver: { pemPublicKey: await fetchPublicKey(document.getElementById("resolverUrl").value) }
   };
   keys.proxy.publicKey = await pemToCryptoPublicKey(keys.proxy.pemPublicKey);
-  keys.resolver.publicKey = await pemToCryptoPublicKey(keys.resolver.pemPublicKey);
-  encrypt(message);
+  // keys.resolver.publicKey = await pemToCryptoPublicKey(keys.resolver.pemPublicKey);
+  document.getElementById('encrypted').value = await encrypt(message);
 }
 
 async function encrypt(message) {
   let response = await encryptMessage(keys.proxy.publicKey, message);
-  document.getElementById('encrypted').value = arrayBufferToBase64(response);
+  return arrayBufferToBase64(response);
 }
 
-async function decrypt(message) {debugger;
+async function decrypt(message) {
   keys.proxy.pemPrivateKey = document.getElementById("privateKey").value;
   let privateKey = await pemToCryptoPrivateKey(keys.proxy.pemPrivateKey);
 
