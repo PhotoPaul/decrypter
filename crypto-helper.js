@@ -25,7 +25,7 @@ async function decryptMessage(privateKey, message) {
 function pemToCryptoPublicKey(pemPublicKey) {
   // Fetch the part of the PEM string between header and footer
   const pemHeader = "-----BEGIN PUBLIC KEY-----";
-  const pemFooter = "-----END PUBLIC KEY-----";
+  const pemFooter = "-----END PUBLIC KEY-----\n";
   const pemContents = pemPublicKey.substring(pemHeader.length, pemPublicKey.length - pemFooter.length);
 
   // Convert from a Base64 string to an ArrayBuffer

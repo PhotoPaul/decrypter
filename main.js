@@ -3,7 +3,7 @@ var keys = {};
 async function fetchAndEncrypt(message) {
   keys = {
     proxy: { pemPublicKey: await fetchPublicKey(document.getElementById("proxyUrl").value) },
-    resolver: { pemPublicKey: await fetchPublicKey(document.getElementById("resolverUrl").value) }
+    // resolver: { pemPublicKey: await fetchPublicKey(document.getElementById("resolverUrl").value) }
   };
   keys.proxy.publicKey = await pemToCryptoPublicKey(keys.proxy.pemPublicKey);
   // keys.resolver.publicKey = await pemToCryptoPublicKey(keys.resolver.pemPublicKey);
