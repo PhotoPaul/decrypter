@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Distributor</title>
+  <title>Distributor & Downloader</title>
   <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="expires" content="0">
   <meta http-equiv="pragma" content="no-cache">
@@ -12,34 +12,31 @@
   <table>
     <tr>
       <td>URL to encrypt:</td>
-      <td><input id="url" type="text" value="https://www.google.com" /></td>
+      <td><input id="url" type="text" value="https://www.google.com" style="width: 300px" /></td>
     </tr>
   </table><br>
-  <button onclick="generateKeys()">Generate Keys</button> - <button
-    onclick="encrypt(document.getElementById('url').value)">Encrypt</button><br><br>
   <table>
     <tr>
       <td style="text-align: right">Proxy URL:</td>
-      <td><input id="proxyUrl" value="http://vmd.pavmeg.com:3000/publicKey" />
+      <td><input id="proxyUrl" value="http://vmd.pavmeg.com:3000/publicKey" style="width: 300px" />
       </td>
     </tr>
     <tr>
       <td style="text-align: right">Resolver URL:</td>
-      <td><input id="resolverUrl"
-          value="https://script.google.com/macros/s/AKfycbwzXmVdo8cHQn0Cn-7Yv6qJDZnwc1KmwFCAVb9z6shUnIKxj4zG4wrv-mO09ubhdC4CCg/exec" />
+      <td><input id="resolverUrl" value="http://vmd.pavmeg.com:3001/publicKey" style="width: 300px" />
       </td>
     </tr>
-  </table><br><br>
+  </table><br>
 
-  <button onclick="fetchAndEncrypt(document.getElementById('url').value)">Fetch & Encrypt</button><br><br>
+  <button onclick="fetchAndEncrypt(document.getElementById('url').value)">Fetch & Proxy Encrypt URL</button><br><br>
 
-  Encrypted Message:<br>
-  <textarea id="encrypted" cols="36" rows="10"></textarea><br><br>
+  Proxy Encrypted URL:<br>
+  <textarea id="proxyEncryptedURL" cols="36" rows="10" style="width: 300px"></textarea><br><br>
 
   Private Key:<br>
-  <textarea id="privateKey" cols="36" rows="10"></textarea><br><br>
+  <textarea id="privateKey" cols="36" rows="10" style="width: 300px"></textarea><br><br>
 
-  <button onclick="decrypt(document.getElementById('encrypted').value)">Decrypt</button><br><br>
+  <button onclick="decrypt(document.getElementById('proxyEncryptedURL').value)">Decrypt</button><br><br>
 
   Decrypted Message:<br>
   <input type="text" id="decrypted" /><br><br>
