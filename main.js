@@ -1,18 +1,20 @@
 var keys = {};
 
-async function fetchAndEncrypt(message) {
-  keys = {
-    proxy: { pemPublicKey: await fetchPublicKey(document.getElementById("proxyUrl").value) },
-    // resolver: { pemPublicKey: await fetchPublicKey(document.getElementById("resolverUrl").value) }
-  };
-  keys.proxy.publicKey = await pemToCryptoPublicKey(keys.proxy.pemPublicKey);
-  // keys.resolver.publicKey = await pemToCryptoPublicKey(keys.resolver.pemPublicKey);
-  document.getElementById('proxyEncryptedURL').value = await encrypt(message);
-}
+async function go(message) {
+  const proxyPublicKeyAsPEM = await fetchPublicKey(document.getElementById("proxyUrl").value);
 
-async function encrypt(message) {
-  let response = await encryptMessage(keys.proxy.publicKey, message);
-  return arrayBufferToBase64(response);
+  const resolverPublicKeyAsPEM = await fetchPublicKey(document.getElementById("resolverUrl").value);
+
+  const proxyEncryptedURL = await publicKeyEncryptMessage(proxyPublicKeyAsPEM, message);
+  
+  const FBPacket = {
+    proxyPublicKeyAsPEM: proxyPublicKeyAsPEM,
+    proxyEncryptedURL: proxyEncryptedURL
+  }
+
+  const stringifiedFBPacket = JSON.stringify(FBPacket);
+  const resolverEncryptedFBPacket = await publicKeyEncryptMessage(resolverPublicKeyAsPEM, stringifiedFBPacket);
+  document.getElementById('resolverEncryptedFBPacket').value = JSON.stringify(resolverEncryptedFBPacket);
 }
 
 async function decrypt(message) {

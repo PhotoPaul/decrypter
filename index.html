@@ -28,21 +28,18 @@
     </tr>
   </table><br>
 
-  <button onclick="fetchAndEncrypt(document.getElementById('url').value)">Fetch & Proxy Encrypt URL</button><br><br>
+  <button onclick="go(document.getElementById('url').value)">Go</button><br><br>
 
-  Proxy Encrypted URL:<br>
-  <textarea id="proxyEncryptedURL" cols="36" rows="10" style="width: 300px"></textarea><br><br>
+  Resolver Encrypted FB Packet:<br>
+  <textarea id="resolverEncryptedFBPacket" cols="36" rows="10" style="width: 300px"></textarea><br><br>
 
-  Private Key:<br>
-  <textarea id="privateKey" cols="36" rows="10" style="width: 300px"></textarea><br><br>
-
-  <button onclick="decrypt(document.getElementById('proxyEncryptedURL').value)">Decrypt</button><br><br>
+  <button onclick="decrypt(document.getElementById('resolverEncryptedFBPacket').value)">Decrypt</button><br><br>
 
   Decrypted Message:<br>
   <input type="text" id="decrypted" /><br><br>
 
-  <script src="crypto-helper.js?v=1"></script>
-  <script src="main.js"></script>
+  <script src="crypto-helper.js?v=${new Date().getTime()}"></script>
+  <script src="main.js?v=${new Date().getTime()}"></script>
 </body>
 
 </html>

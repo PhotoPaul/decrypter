@@ -1,14 +1,76 @@
-async function encryptMessage(publicKey, message) {
+async function publicKeyEncryptMessage(pemPublicKey, message) {
+  // Generate an AES key
+  const aesKey = await crypto.subtle.generateKey({
+    name: 'AES-GCM',
+    length: 256
+  }, true, ["encrypt", "decrypt"]);
+  const base64AESKey = await btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.exportKey('raw', aesKey))));
+
+  // Generate an IV
+  const iv = window.crypto.getRandomValues(new Uint8Array(12));
+
+  // AES Encrypt the message
   const encoder = new TextEncoder();
   const dataBuffer = encoder.encode(message);
+  const aesEncyptedMessage = await window.crypto.subtle.encrypt({
+      name: 'AES-GCM',
+      iv: iv
+    },
+    aesKey,
+    dataBuffer
+  );
+
+  // Public Key Encrypt the AES key and the IV
+  const publicKey = await pemPublicKeyToCrypto(pemPublicKey);
+
+  const publicKeyEncryptedAESKeyAndIV = await window.crypto.subtle.encrypt(
+    { name: "RSA-OAEP" },
+    publicKey,
+    encoder.encode(JSON.stringify({ aesKey: aesKey, iv: iv }))
+  );
+
+  // Return Public Key Encrypted Message and AES key and IV
+  return {
+    aesEncyptedMessage: arrayBufferToBase64(aesEncyptedMessage),
+    publicKeyEncryptedAESKeyAndIV: arrayBufferToBase64(publicKeyEncryptedAESKeyAndIV),
+  }
+}
+
+async function encryptMessage(publicKey, message) {
+  // First generate an AES key and an IV
+  const aesKey = await crypto.subtle.generateKey({
+    name: 'AES-GCM',
+    length: 256
+  }, true, ["encrypt", "decrypt"]);
+  const base64AESKey = await btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.exportKey('raw', aesKey))));
+  const iv = window.crypto.getRandomValues(new Uint8Array(12));
+
+  // Then encrypt the message with the AES key and the IV
+  let encoder = new TextEncoder();
+  let dataBuffer = encoder.encode(message);
+  const aesEncyptedMessage = await window.crypto.subtle.encrypt({
+      name: 'AES-GCM',
+      iv: iv
+    },
+    aesKey,
+    dataBuffer
+  );
+
+  // Then encrypt the AES key with the public key
   const encryptedData = await window.crypto.subtle.encrypt(
     {
       name: "RSA-OAEP",
     },
     publicKey,
-    dataBuffer
+    aesEncyptedMessage
   );
-  return encryptedData;
+
+  // Then return the encrypted message and the encrypted AES key
+  return {
+    iv: iv,
+    publicKey: publicKey,
+    aesEncyptedMessage: arrayBufferToBase64(encryptedData)
+  };
 }
 
 async function decryptMessage(privateKey, message) {
@@ -22,7 +84,7 @@ async function decryptMessage(privateKey, message) {
   return new TextDecoder().decode(decrypted);
 }
 
-function pemToCryptoPublicKey(pemPublicKey) {
+function pemPublicKeyToCrypto(pemPublicKey) {
   // Fetch the part of the PEM string between header and footer
   const pemHeader = "-----BEGIN PUBLIC KEY-----";
   const pemFooter = "-----END PUBLIC KEY-----\n";
@@ -133,16 +195,16 @@ function base64ToArrayBuffer(base64) {
   return bytes.buffer;
 }
 
-async function generateKeyPair() {
-  let keyPair = await window.crypto.subtle.generateKey({
-    name: "RSA-OAEP",
-    modulusLength: 2048,
-    publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-    hash: { name: "SHA-256" },
-  }, true, ["encrypt", "decrypt"]);
+// async function generateKeyPair() {
+//   let keyPair = await window.crypto.subtle.generateKey({
+//     name: "RSA-OAEP",
+//     modulusLength: 2048,
+//     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+//     hash: { name: "SHA-256" },
+//   }, true, ["encrypt", "decrypt"]);
 
-  keyPair.pemPublicKey = await cryptoPublicKeyToPEM(keyPair.publicKey);
-  keyPair.pemPrivateKey = await cryptoPrivateKeyToPEM(keyPair.privateKey);
+//   keyPair.pemPublicKey = await cryptoPublicKeyToPEM(keyPair.publicKey);
+//   keyPair.pemPrivateKey = await cryptoPrivateKeyToPEM(keyPair.privateKey);
 
-  return keyPair;
-}
+//   return keyPair;
+// }
