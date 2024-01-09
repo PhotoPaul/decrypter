@@ -1,3 +1,21 @@
+async function privateKeyDecryptMessage(serverUrl, encryptedMessage) {
+  const response = await fetch(serverUrl + 'decrypt', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json; charset=UTF-8'
+    },
+    body: encryptedMessage
+  });
+  const decryptedMessage = await response.text();
+  return decryptedMessage;
+}
+
+async function fetchPublicKey(serverUrl) {
+  const response = await fetch(serverUrl + 'publicKey');
+  const publicKey = await response.text();
+  return publicKey;
+}
+
 async function publicKeyEncryptMessage(pemPublicKey, message) {
   // Generate an AES key
   const aesKey = await crypto.subtle.generateKey({
@@ -26,7 +44,7 @@ async function publicKeyEncryptMessage(pemPublicKey, message) {
   const publicKeyEncryptedAESKeyAndIV = await window.crypto.subtle.encrypt(
     { name: "RSA-OAEP" },
     publicKey,
-    encoder.encode(JSON.stringify({ aesKey: aesKey, iv: iv }))
+    encoder.encode(JSON.stringify({ base64AESKey: base64AESKey, iv: iv }))
   );
 
   // Return Public Key Encrypted Message and AES key and IV
@@ -129,12 +147,6 @@ function pemToCryptoPrivateKey(pemPrivateKey) {
   );
 }
 
-async function fetchPublicKey(serverUrl) {
-  const response = await fetch(serverUrl);
-  const publicKey = await response.text();
-  return publicKey;
-}
-
 async function cryptoPublicKeyToPEM(publicKey) {
   return window.crypto.subtle.exportKey("spki", publicKey)
     .then(keyData => {
@@ -194,17 +206,3 @@ function base64ToArrayBuffer(base64) {
   }
   return bytes.buffer;
 }
-
-// async function generateKeyPair() {
-//   let keyPair = await window.crypto.subtle.generateKey({
-//     name: "RSA-OAEP",
-//     modulusLength: 2048,
-//     publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-//     hash: { name: "SHA-256" },
-//   }, true, ["encrypt", "decrypt"]);
-
-//   keyPair.pemPublicKey = await cryptoPublicKeyToPEM(keyPair.publicKey);
-//   keyPair.pemPrivateKey = await cryptoPrivateKeyToPEM(keyPair.privateKey);
-
-//   return keyPair;
-// }

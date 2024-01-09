@@ -1,9 +1,11 @@
 var keys = {};
 
-async function go(message) {
-  const proxyPublicKeyAsPEM = await fetchPublicKey(document.getElementById("proxyUrl").value);
+async function encrypt(message) {
+  const proxyUrl = document.getElementById("proxyUrl").value;
+  const resolverUrl = document.getElementById("resolverUrl").value;
 
-  const resolverPublicKeyAsPEM = await fetchPublicKey(document.getElementById("resolverUrl").value);
+  const proxyPublicKeyAsPEM = await fetchPublicKey(proxyUrl);
+  const resolverPublicKeyAsPEM = await fetchPublicKey(resolverUrl);
 
   const proxyEncryptedURL = await publicKeyEncryptMessage(proxyPublicKeyAsPEM, message);
   
@@ -18,15 +20,13 @@ async function go(message) {
 }
 
 async function decrypt(message) {
-  keys.proxy.pemPrivateKey = document.getElementById("privateKey").value;
-  let privateKey = await pemToCryptoPrivateKey(keys.proxy.pemPrivateKey);
+  const proxyUrl = document.getElementById("proxyUrl").value;
+  const resolverUrl = document.getElementById("resolverUrl").value;
 
-  let response = await decryptMessage(privateKey, message);
-  // let response = await decryptMessage(keys.proxy.privateKey, message);
-  document.getElementById('decrypted').value = response;
-}
+  // const proxyPublicKeyAsPEM = await fetchPublicKey(proxyUrl);
+  // const resolverPublicKeyAsPEM = await fetchPublicKey(resolverUrl);
 
-async function generateKeys() {
-  keys.proxy = await generateKeyPair();
-  keys.resolver = await generateKeyPair();
+  const resolverEncryptedFBPacket = document.getElementById('resolverEncryptedFBPacket').value;
+  const resolverDecryptedFBPacket = await privateKeyDecryptMessage(resolverUrl, resolverEncryptedFBPacket);
+
 }

@@ -18,17 +18,17 @@
   <table>
     <tr>
       <td style="text-align: right">Proxy URL:</td>
-      <td><input id="proxyUrl" value="http://vmd.pavmeg.com:3000/publicKey" style="width: 300px" />
+      <td><input id="proxyUrl" value="http://vmd.pavmeg.com:3000/" style="width: 300px" />
       </td>
     </tr>
     <tr>
       <td style="text-align: right">Resolver URL:</td>
-      <td><input id="resolverUrl" value="http://vmd.pavmeg.com:3001/publicKey" style="width: 300px" />
+      <td><input id="resolverUrl" value="http://vmd.pavmeg.com:3001/" style="width: 300px" />
       </td>
     </tr>
   </table><br>
 
-  <button onclick="go(document.getElementById('url').value)">Go</button><br><br>
+  <button onclick="encrypt(document.getElementById('url').value)">Go</button><br><br>
 
   Resolver Encrypted FB Packet:<br>
   <textarea id="resolverEncryptedFBPacket" cols="36" rows="10" style="width: 300px"></textarea><br><br>
