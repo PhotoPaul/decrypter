@@ -37,14 +37,15 @@ async function publicKeyEncryptMessage(pemPublicKey, message) {
     aesKey,
     dataBuffer
   );
+  const authTag = aesEncyptedMessage.slice(aesEncyptedMessage.byteLength - 16);
 
-  // Public Key Encrypt the AES key and the IV
+// Public Key Encrypt the AES key and the IV
   const publicKey = await pemPublicKeyToCrypto(pemPublicKey);
 
   const publicKeyEncryptedAESKeyAndIV = await window.crypto.subtle.encrypt(
     { name: "RSA-OAEP" },
     publicKey,
-    encoder.encode(JSON.stringify({ base64AESKey: base64AESKey, iv: iv }))
+    encoder.encode(JSON.stringify({ base64AESKey: base64AESKey, iv: iv, authTag: arrayBufferToBase64(authTag) })),
   );
 
   // Return Public Key Encrypted Message and AES key and IV
