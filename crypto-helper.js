@@ -32,12 +32,14 @@ async function publicKeyEncryptMessage(pemPublicKey, message) {
   const dataBuffer = encoder.encode(message);
   const aesEncyptedMessage = await window.crypto.subtle.encrypt({
       name: 'AES-GCM',
-      iv: iv
+      iv: iv,
+      tagLength: 128
     },
     aesKey,
     dataBuffer
   );
-  const authTag = aesEncyptedMessage.slice(aesEncyptedMessage.byteLength - 16);
+  const aesEncyptedMessageNoAuthTag = aesEncyptedMessage.slice(0, -16);
+  const authTag = aesEncyptedMessage.slice(-16); // Assuming a 128-bit tag length
 
 // Public Key Encrypt the AES key and the IV
   const publicKey = await pemPublicKeyToCrypto(pemPublicKey);
@@ -50,7 +52,7 @@ async function publicKeyEncryptMessage(pemPublicKey, message) {
 
   // Return Public Key Encrypted Message and AES key and IV
   return {
-    aesEncyptedMessage: arrayBufferToBase64(aesEncyptedMessage),
+    aesEncyptedMessageNoAuthTag: arrayBufferToBase64(aesEncyptedMessageNoAuthTag),
     publicKeyEncryptedAESKeyAndIV: arrayBufferToBase64(publicKeyEncryptedAESKeyAndIV),
   }
 }

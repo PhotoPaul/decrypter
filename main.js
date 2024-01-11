@@ -23,10 +23,12 @@ async function decrypt(message) {
   const proxyUrl = document.getElementById("proxyUrl").value;
   const resolverUrl = document.getElementById("resolverUrl").value;
 
-  // const proxyPublicKeyAsPEM = await fetchPublicKey(proxyUrl);
-  // const resolverPublicKeyAsPEM = await fetchPublicKey(resolverUrl);
-
   const resolverEncryptedFBPacket = document.getElementById('resolverEncryptedFBPacket').value;
   const resolverDecryptedFBPacket = await privateKeyDecryptMessage(resolverUrl, resolverEncryptedFBPacket);
+  const resolverDecryptedFBPacketObj = JSON.parse(resolverDecryptedFBPacket);
+  const proxyEncryptedURL = JSON.stringify(resolverDecryptedFBPacketObj.proxyEncryptedURL);
+  
+  const proxyDecryptedFBPacket = await privateKeyDecryptMessage(proxyUrl, proxyEncryptedURL);
+  document.getElementById('decryptedURL').value = proxyDecryptedFBPacket;
 
 }
